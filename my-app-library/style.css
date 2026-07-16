@@ -160,6 +160,10 @@ body {
   animation: fadeInUp 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-.numpad-key:focus {
+.numpad-key:focus, .focus-target:focus {
+  border-color: var(--color-accent) !important;
+  box-shadow: 0 0 15px rgba(108, 92, 231, 0.4) !important;
+  background-color: var(--color-surface-hover) !important;
+  transform: scale(1.03);
   outline: none;
 }
