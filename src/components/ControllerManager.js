@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════
-   HD Arcade — Controller Manager
-   Handles real Gamepad API polling, spatial menu navigation,
-   and simulated Gamepad input injection for TV Mode.
+   HD Arcade — Controller Manager v2
+   Handles Gamepad API inputs, spatial UI navigation with debouncing,
+   analog sticks dead-zones, and simulated gamepad syncing for TV.
    ═══════════════════════════════════════════════ */
 
 import { pairing } from '../services/pairing.js';
@@ -11,7 +11,15 @@ let lastButtons = {};
 let simulatedGamepad = null;
 let currentHostRoomCode = '';
 
-// Default Gamepad Structure for simulation
+const DEADZONE = 0.15;
+const REPEAT_THROTTLE = 220; // ms repeat rate for held directions
+let lastNavTime = 0;
+
+function applyDeadzone(value) {
+  if (Math.abs(value) < DEADZONE) return 0;
+  return (value - (value > 0 ? DEADZONE : -DEADZONE)) / (1 - DEADZONE);
+}
+
 function createEmptyGamepadState() {
   return {
     id: 'Xbox Wireless Controller (Simulated)',
@@ -26,32 +34,26 @@ function createEmptyGamepadState() {
 
 export const ControllerManager = {
   isTVMode: false,
-  onCategoryChange: null, // callback(direction: 'prev' | 'next')
-  onStartPressed: null,    // callback()
+  onCategoryChange: null,
+  onStartPressed: null,
 
   init(isTVMode, hostRoomCode = '') {
     this.isTVMode = isTVMode;
     currentHostRoomCode = hostRoomCode;
 
-    // Remove any existing listeners first
     window.removeEventListener('gamepadconnected', this.handleConnected);
     window.removeEventListener('gamepaddisconnected', this.handleDisconnected);
 
     if (isTVMode) {
-      // Overwrite navigator.getGamepads to support simulated controller inputs
       simulatedGamepad = createEmptyGamepadState();
       navigator.getGamepads = function() {
         return [simulatedGamepad, null, null, null];
       };
-      
-      // Periodically update the iframe getGamepads dynamically
       this.startIframeGamepadSync();
     } else {
-      // Normal / Host Mode: Listen to physical controller
       window.addEventListener('gamepadconnected', this.handleConnected.bind(this));
       window.addEventListener('gamepaddisconnected', this.handleDisconnected.bind(this));
 
-      // Auto-start if a controller is already connected
       const gps = navigator.getGamepads ? navigator.getGamepads() : [];
       if (gps[0]) {
         this.startPolling();
@@ -76,57 +78,85 @@ export const ControllerManager = {
       const gp = gamepads[0];
       
       if (gp) {
-        // Read axes and buttons
-        const axes = [gp.axes[0], gp.axes[1], gp.axes[2], gp.axes[3]];
+        // Apply analog stick dead-zones
+        const axes = [
+          applyDeadzone(gp.axes[0]),
+          applyDeadzone(gp.axes[1]),
+          applyDeadzone(gp.axes[2]),
+          applyDeadzone(gp.axes[3])
+        ];
+
         const buttons = {
-          up: gp.buttons[12]?.pressed || gp.axes[1] < -0.5,
-          down: gp.buttons[13]?.pressed || gp.axes[1] > 0.5,
-          left: gp.buttons[14]?.pressed || gp.axes[0] < -0.5,
-          right: gp.buttons[15]?.pressed || gp.axes[0] > 0.5,
+          up: gp.buttons[12]?.pressed || axes[1] < -0.5,
+          down: gp.buttons[13]?.pressed || axes[1] > 0.5,
+          left: gp.buttons[14]?.pressed || axes[0] < -0.5,
+          right: gp.buttons[15]?.pressed || axes[0] > 0.5,
           a: gp.buttons[0]?.pressed,
           b: gp.buttons[1]?.pressed,
+          x: gp.buttons[2]?.pressed,
+          y: gp.buttons[3]?.pressed,
           lb: gp.buttons[4]?.pressed,
           rb: gp.buttons[5]?.pressed,
+          lt: gp.buttons[6]?.value || 0,
+          rt: gp.buttons[7]?.value || 0,
           start: gp.buttons[9]?.pressed
         };
 
-        // Edge detection triggers (single press action)
-        if (buttons.left && !lastButtons.left) this.navigateSpatial('left');
-        if (buttons.right && !lastButtons.right) this.navigateSpatial('right');
-        if (buttons.up && !lastButtons.up) this.navigateSpatial('up');
-        if (buttons.down && !lastButtons.down) this.navigateSpatial('down');
+        const now = Date.now();
+        const canNavigate = now - lastNavTime > REPEAT_THROTTLE;
 
+        // Debounced spatial navigation triggers
+        if (canNavigate) {
+          if (buttons.left && (!lastButtons.left || axes[0] < -0.6)) {
+            this.navigateSpatial('left');
+            lastNavTime = now;
+          }
+          if (buttons.right && (!lastButtons.right || axes[0] > 0.6)) {
+            this.navigateSpatial('right');
+            lastNavTime = now;
+          }
+          if (buttons.up && (!lastButtons.up || axes[1] < -0.6)) {
+            this.navigateSpatial('up');
+            lastNavTime = now;
+          }
+          if (buttons.down && (!lastButtons.down || axes[1] > 0.6)) {
+            this.navigateSpatial('down');
+            lastNavTime = now;
+          }
+        }
+
+        // Action Triggers
         if (buttons.a && !lastButtons.a) {
           const active = document.activeElement;
-          if (active && (active.tagName === 'A' || active.tagName === 'BUTTON' || active.classList.contains('focus-target'))) {
+          if (active && (active.tagName === 'A' || active.tagName === 'BUTTON' || active.classList.contains('focus-target') || active.classList.contains('numpad-key'))) {
             active.click();
           }
         }
+
         if (buttons.b && !lastButtons.b) {
           const closeBtn = document.getElementById('btn-close-viewer');
           if (closeBtn && closeBtn.offsetParent !== null) {
             closeBtn.click();
           } else {
-            // go back in settings or other back triggers
             const backBtn = document.getElementById('btn-settings-back');
             if (backBtn) backBtn.click();
           }
         }
 
-        // LB/RB to swap categories
+        // LB/RB category swap triggers
         if (buttons.lb && !lastButtons.lb) this.onCategoryChange?.('prev');
         if (buttons.rb && !lastButtons.rb) this.onCategoryChange?.('next');
 
-        // Start to toggle menu / settings
+        // Start settings toggle trigger
         if (buttons.start && !lastButtons.start) this.onStartPressed?.();
 
         lastButtons = buttons;
 
-        // If we are hosting, stream gamepad inputs to Google TV
+        // Broadcast synced gamepad state to Google TV
         if (currentHostRoomCode) {
           pairing.send({
             type: 'gamepad-sync',
-            axes: gp.axes,
+            axes,
             buttons: gp.buttons.map(b => ({ pressed: b.pressed, value: b.value }))
           }, true);
         }
@@ -143,7 +173,6 @@ export const ControllerManager = {
     }
   },
 
-  // Spatial geometric focus navigator
   navigateSpatial(direction) {
     const active = document.activeElement;
     if (!active || (!active.classList.contains('card-focused') && !active.classList.contains('focus-element-active') && active.tagName !== 'A' && active.tagName !== 'BUTTON')) {
@@ -173,7 +202,7 @@ export const ControllerManager = {
       let distance = Math.sqrt(dx * dx + dy * dy);
       let alignmentScore = 0;
       if (direction === 'left' || direction === 'right') {
-        alignmentScore = Math.abs(dy) * 2.5; // Penalize off-axis moves
+        alignmentScore = Math.abs(dy) * 2.5;
       } else {
         alignmentScore = Math.abs(dx) * 2.5;
       }
@@ -190,30 +219,31 @@ export const ControllerManager = {
     }
   },
 
-  // Simulates input state based on synced messages from Host iPad
   injectSimulatedInput(gamepadData) {
     if (!this.isTVMode || !simulatedGamepad) return;
     simulatedGamepad.timestamp = Date.now();
     simulatedGamepad.axes = gamepadData.axes;
     simulatedGamepad.buttons = gamepadData.buttons;
 
-    // Trigger local TV UI actions with simulated inputs too
+    // Map simulated buttons to spatial TV navigation
+    const axes = gamepadData.axes;
     const buttons = {
-      up: gamepadData.buttons[12]?.pressed || gamepadData.axes[1] < -0.5,
-      down: gamepadData.buttons[13]?.pressed || gamepadData.axes[1] > 0.5,
-      left: gamepadData.buttons[14]?.pressed || gamepadData.axes[0] < -0.5,
-      right: gamepadData.buttons[15]?.pressed || gamepadData.axes[0] > 0.5,
+      up: gamepadData.buttons[12]?.pressed || axes[1] < -0.5,
+      down: gamepadData.buttons[13]?.pressed || axes[1] > 0.5,
+      left: gamepadData.buttons[14]?.pressed || axes[0] < -0.5,
+      right: gamepadData.buttons[15]?.pressed || axes[0] > 0.5,
       a: gamepadData.buttons[0]?.pressed,
       b: gamepadData.buttons[1]?.pressed,
-      lb: gamepadData.buttons[4]?.pressed,
-      rb: gamepadData.buttons[5]?.pressed,
       start: gamepadData.buttons[9]?.pressed
     };
 
-    if (buttons.left && !lastButtons.left) this.navigateSpatial('left');
-    if (buttons.right && !lastButtons.right) this.navigateSpatial('right');
-    if (buttons.up && !lastButtons.up) this.navigateSpatial('up');
-    if (buttons.down && !lastButtons.down) this.navigateSpatial('down');
+    const now = Date.now();
+    if (now - lastNavTime > REPEAT_THROTTLE) {
+      if (buttons.left && !lastButtons.left) { this.navigateSpatial('left'); lastNavTime = now; }
+      if (buttons.right && !lastButtons.right) { this.navigateSpatial('right'); lastNavTime = now; }
+      if (buttons.up && !lastButtons.up) { this.navigateSpatial('up'); lastNavTime = now; }
+      if (buttons.down && !lastButtons.down) { this.navigateSpatial('down'); lastNavTime = now; }
+    }
 
     if (buttons.a && !lastButtons.a) {
       const active = document.activeElement;

@@ -6,6 +6,18 @@
 
 import { storage } from '../services/storage.js';
 
+function createCategoryBadge(category) {
+  const isGame = category === 'game';
+  const badge = document.createElement('span');
+  badge.className = `inline-block px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider rounded-full ${
+    isGame
+      ? 'bg-[var(--color-game)]/15 text-[var(--color-game)]'
+      : 'bg-[var(--color-app)]/15 text-[var(--color-app)]'
+  }`;
+  badge.textContent = isGame ? 'Game' : 'App';
+  return badge;
+}
+
 const CARD_THEMES = {
   'subway-surfers': {
     gradient: 'linear-gradient(135deg, #FFD93D 0%, #FF6B00 100%)',
@@ -197,14 +209,43 @@ export const GameCard = {
 
     /* ── Info Row ──────────────────────────────── */
     const info = document.createElement('div');
-    info.className = 'flex items-center justify-between gap-2 px-4 py-3';
+    info.className = 'px-4 py-3 flex flex-col gap-1.5';
+
+    const topRow = document.createElement('div');
+    topRow.className = 'flex items-center justify-between gap-2';
 
     const title = document.createElement('h3');
-    title.className = 'text-sm font-medium text-[var(--color-text-primary)] truncate';
+    title.className = 'text-sm font-bold text-[var(--color-text-primary)] truncate';
     title.textContent = item.title;
 
-    info.appendChild(title);
-    info.appendChild(createCategoryBadge(item.category));
+    topRow.appendChild(title);
+    topRow.appendChild(createCategoryBadge(item.category));
+
+    // Compatibility badges row
+    const badgesRow = document.createElement('div');
+    badgesRow.className = 'flex flex-wrap gap-1 mt-0.5';
+
+    if (item.controllerSupport) {
+      const b = document.createElement('span');
+      b.className = 'px-1.5 py-0.5 rounded text-[8px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+      b.textContent = '🎮 CONTROLLER';
+      badgesRow.appendChild(b);
+    }
+    if (item.iframeAllowed) {
+      const b = document.createElement('span');
+      b.className = 'px-1.5 py-0.5 rounded text-[8px] font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20';
+      b.textContent = '📺 TV READY';
+      badgesRow.appendChild(b);
+    }
+    if (item.keyboardRequired) {
+      const b = document.createElement('span');
+      b.className = 'px-1.5 py-0.5 rounded text-[8px] font-bold bg-yellow-500/10 text-yellow-400 border border-yellow-500/20';
+      b.textContent = '⌨️ KEYBOARD';
+      badgesRow.appendChild(b);
+    }
+
+    info.appendChild(topRow);
+    info.appendChild(badgesRow);
 
     card.appendChild(imgWrap);
     card.appendChild(info);

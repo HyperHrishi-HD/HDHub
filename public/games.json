@@ -9,7 +9,12 @@
       "external": false,
       "description": "Dash and dodge trains in the world-famous endless runner. Collect coins, unlock hoverboards, and outrun the inspector!",
       "controls": "Keyboard / Touch",
-      "aspect": "16:9"
+      "aspect": "16:9",
+      "controllerSupport": false,
+      "iframeAllowed": true,
+      "keyboardRequired": true,
+      "mobileCompatible": true,
+      "difficulty": "Easy"
     },
     {
       "id": "8-ball-billiards",
@@ -20,7 +25,12 @@
       "external": false,
       "description": "Championship class 8-Ball Pool. Play against an intelligent computer AI or local two-player mode with realistic physics.",
       "controls": "Mouse / Touch",
-      "aspect": "16:9"
+      "aspect": "16:9",
+      "controllerSupport": false,
+      "iframeAllowed": true,
+      "keyboardRequired": false,
+      "mobileCompatible": true,
+      "difficulty": "Medium"
     },
     {
       "id": "geometry-dash",
@@ -31,7 +41,12 @@
       "external": false,
       "description": "Jump, fly, and flip your way through dangerous passages and spiky obstacles in this rhythm-based action platformer.",
       "controls": "Keyboard / Mouse / Controller",
-      "aspect": "16:9"
+      "aspect": "16:9",
+      "controllerSupport": true,
+      "iframeAllowed": true,
+      "keyboardRequired": false,
+      "mobileCompatible": true,
+      "difficulty": "Hard"
     },
     {
       "id": "eaglercraft",
@@ -42,7 +57,12 @@
       "external": false,
       "description": "Minecraft 1.8.8 web client. Explore endless worlds, build magnificent structures, and survive against nocturnal monsters.",
       "controls": "Keyboard / Mouse",
-      "aspect": "16:9"
+      "aspect": "16:9",
+      "controllerSupport": false,
+      "iframeAllowed": true,
+      "keyboardRequired": true,
+      "mobileCompatible": false,
+      "difficulty": "Medium"
     },
     {
       "id": "gta-vice-city",
@@ -53,7 +73,12 @@
       "external": false,
       "description": "Step into the neon-lit 1980s streets of Vice City in this WebAssembly reverse-engineered open-world classic.",
       "controls": "Keyboard / Mouse / Controller",
-      "aspect": "16:9"
+      "aspect": "16:9",
+      "controllerSupport": true,
+      "iframeAllowed": true,
+      "keyboardRequired": true,
+      "mobileCompatible": false,
+      "difficulty": "Hard"
     },
     {
       "id": "drift-hunters",
@@ -64,7 +89,12 @@
       "external": false,
       "description": "Superb 3D car drifting simulator. Tune your engine, choose from 25+ drift cars, and burn rubber across multiple racing tracks.",
       "controls": "Keyboard / Controller",
-      "aspect": "16:9"
+      "aspect": "16:9",
+      "controllerSupport": true,
+      "iframeAllowed": true,
+      "keyboardRequired": true,
+      "mobileCompatible": false,
+      "difficulty": "Medium"
     },
     {
       "id": "youtube",
@@ -76,7 +106,12 @@
       "iframeBlocked": true,
       "description": "Watch videos, stream live channels, subscribe to creators, and discover the world's video library in a secure environment.",
       "controls": "Mouse / Touch",
-      "aspect": "16:9"
+      "aspect": "16:9",
+      "controllerSupport": false,
+      "iframeAllowed": false,
+      "keyboardRequired": false,
+      "mobileCompatible": true,
+      "difficulty": "Easy"
     },
     {
       "id": "instagram",
@@ -88,7 +123,12 @@
       "iframeBlocked": true,
       "description": "Browse stories, reels, photos, and connect with your friends on the world's most popular visual social network.",
       "controls": "Mouse / Touch",
-      "aspect": "16:9"
+      "aspect": "16:9",
+      "controllerSupport": false,
+      "iframeAllowed": false,
+      "keyboardRequired": false,
+      "mobileCompatible": true,
+      "difficulty": "Easy"
     },
     {
       "id": "hdsfd-dashboard",
@@ -99,7 +139,12 @@
       "external": true,
       "description": "Personal productivity engine. Manage your Pomodoro timer, tasks, schedule, and notes in a sleek distraction-free setup.",
       "controls": "Keyboard / Mouse",
-      "aspect": "16:9"
+      "aspect": "16:9",
+      "controllerSupport": false,
+      "iframeAllowed": true,
+      "keyboardRequired": true,
+      "mobileCompatible": true,
+      "difficulty": "Easy"
     },
     {
       "id": "hyperhrishihd",
@@ -111,7 +156,12 @@
       "iframeBlocked": true,
       "description": "Official YouTube channel. Watch gameplay videos, development walkthroughs, tutorials, and tech showcases.",
       "controls": "Mouse / Touch",
-      "aspect": "16:9"
+      "aspect": "16:9",
+      "controllerSupport": false,
+      "iframeAllowed": false,
+      "keyboardRequired": false,
+      "mobileCompatible": true,
+      "difficulty": "Easy"
     }
   ]
 }

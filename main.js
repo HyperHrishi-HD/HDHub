@@ -23,20 +23,30 @@ let currentCategoryIndex = 0;
 const categories = ['all', 'games', 'apps', 'favorites'];
 
 /* ═══════════════════════════════════════════════
-   Dashboard Rendering Modes
+   Dashboard Routing & Boot Animations
    ═══════════════════════════════════════════════ */
 
+let isBooted = false;
+
 function checkRoutingMode() {
+  const settings = storage.getSettings();
+  
+  if (!isBooted && !settings.skipBootAnimation) {
+    runBootAnimation(() => {
+      isBooted = true;
+      checkRoutingMode();
+    });
+    return;
+  }
+
   const path = window.location.pathname;
   const hash = window.location.hash;
 
-  // TV Mode
   if (path === '/tv' || hash === '#tv') {
     TVMode.render(APP_CONTAINER);
     return;
   }
 
-  // Settings Mode
   if (path === '/settings' || hash === '#settings') {
     Settings.render(APP_CONTAINER, () => {
       window.location.hash = '';
@@ -44,9 +54,82 @@ function checkRoutingMode() {
     return;
   }
 
-  // Otherwise: Dashboard Mode
   renderDashboard();
 }
+
+function runBootAnimation(onComplete) {
+  APP_CONTAINER.innerHTML = `
+    <div class="fixed inset-0 bg-black z-[100000] flex flex-col items-center justify-center text-center select-none overflow-hidden">
+      <!-- Animated neon console backdrop -->
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(108,92,231,0.18)_0%,transparent_60%)] animate-pulse"></div>
+      <div class="z-10 animate-fade-in-up">
+        <h1 class="text-4xl sm:text-6xl font-extrabold tracking-widest text-white mb-2 drop-shadow-2xl">
+          HD <span class="text-indigo-400">ARCADE</span>
+        </h1>
+        <p class="text-xs text-[var(--color-text-secondary)] font-mono uppercase tracking-widest mt-4">Loading Console...</p>
+        <div class="w-48 h-1 bg-white/10 rounded-full mx-auto mt-6 overflow-hidden border border-white/5">
+          <div class="h-full bg-indigo-500 rounded-full animate-boot-progress" style="animation: bootBar 2s cubic-bezier(0.25, 1, 0.5, 1) forwards;"></div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Inject temporary styles for progress bar if not already present
+  if (!document.getElementById('boot-anim-styles')) {
+    const s = document.createElement('style');
+    s.id = 'boot-anim-styles';
+    s.textContent = `
+      @keyframes bootBar {
+        0% { width: 0%; }
+        100% { width: 100%; }
+      }
+    `;
+    document.head.appendChild(s);
+  }
+
+  setTimeout(() => {
+    onComplete();
+  }, 2200); // 2.2s boot duration
+}
+
+// Global Keyboard / Remote controller fallback event listeners
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    ControllerManager.navigateSpatial('up');
+  }
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    ControllerManager.navigateSpatial('down');
+  }
+  if (e.key === 'ArrowLeft') {
+    e.preventDefault();
+    ControllerManager.navigateSpatial('left');
+  }
+  if (e.key === 'ArrowRight') {
+    e.preventDefault();
+    ControllerManager.navigateSpatial('right');
+  }
+  if (e.key === 'Enter') {
+    const active = document.activeElement;
+    if (active) {
+      e.preventDefault();
+      active.click();
+    }
+  }
+  if (e.key === 'Escape' || e.key === 'Backspace') {
+    const viewerClose = document.getElementById('btn-close-viewer');
+    const tvDisconnect = document.getElementById('tv-btn-disconnect');
+    const settingsBack = document.getElementById('btn-settings-back');
+    if (viewerClose && viewerClose.offsetParent !== null) {
+      viewerClose.click();
+    } else if (tvDisconnect && tvDisconnect.offsetParent !== null) {
+      tvDisconnect.click();
+    } else if (settingsBack && settingsBack.offsetParent !== null) {
+      settingsBack.click();
+    }
+  }
+});
 
 function handleCardClick(item) {
   if (item.iframeBlocked) {

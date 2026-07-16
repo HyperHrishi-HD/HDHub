@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════
-   HD Arcade — Pairing System Component
-   Handles pairing code generation, UI overlays, QR codes,
-   and coordination.
+   HD Arcade — Pairing System Component v2
+   Coordinates randomly generated 4-digit codes with secure long-lived
+   session IDs, tracking connection heartbeat states.
    ═══════════════════════════════════════════════ */
 
 import { pairing } from '../services/pairing.js';
@@ -10,35 +10,32 @@ import { ControllerManager } from './ControllerManager.js';
 let activeRoomCode = '';
 
 export const PairingSystem = {
-  // Generate random 4-digit code
   generateCode() {
     return Math.floor(1000 + Math.random() * 9000).toString();
   },
 
-  async startHost(onPeerConnected, onGameClosed) {
+  async startHost(onPeerConnected) {
     activeRoomCode = this.generateCode();
     
-    // Initialize connection
     pairing.init(
       activeRoomCode,
       true, // isHost = true
       (message) => {
-        // Handle incoming messages from TV
         if (message.type === 'peer-online') {
-          this.updateStatus('Connected & Active');
+          this.updateStatus('CONNECTED', 0);
           ControllerManager.setHostRoom(activeRoomCode);
           onPeerConnected?.();
         } else if (message.type === 'tv-disconnect') {
-          this.updateStatus('Disconnected');
+          this.updateStatus('DISCONNECTED', 0);
           ControllerManager.setHostRoom('');
         }
       },
-      (status) => {
-        // Handle connection status changes
-        if (status === 'connected') {
-          this.updateStatus('Waiting for Google TV...');
-        } else if (status === 'offline' || status === 'error') {
-          this.updateStatus('Signaling reconnecting...');
+      (status, latency) => {
+        this.updateStatus(status, latency);
+        if (status === 'CONNECTED') {
+          ControllerManager.setHostRoom(activeRoomCode);
+        } else if (status === 'DISCONNECTED' || status === 'RECONNECTING') {
+          ControllerManager.setHostRoom('');
         }
       }
     );
@@ -63,42 +60,40 @@ export const PairingSystem = {
     }
 
     const tvUrl = `${window.location.origin}/tv`;
-    
-    // We can also create a QR code API URL to allow scanning!
-    // A free public QR Code API: https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=URL
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(tvUrl + '?code=' + code)}&color=6c5ce7&bgcolor=12121a`;
 
     modal.innerHTML = `
-      <div class="bg-[var(--color-surface-card)] border border-[var(--color-border)] p-8 rounded-3xl max-w-md w-full mx-4 shadow-2xl text-center relative animate-fade-in-up">
-        <div class="text-indigo-400 text-4xl mb-3">🎮</div>
-        <h2 class="text-xl font-bold text-white mb-2">HD Arcade Host Mode</h2>
-        <p class="text-xs text-[var(--color-text-secondary)] mb-6 leading-relaxed">
-          Open this link on your Google TV:
-          <br><span class="text-indigo-300 font-mono select-all text-sm font-semibold">${tvUrl}</span>
+      <div class="bg-[var(--color-surface-card)] border border-[var(--color-border)] p-8 rounded-3xl max-w-sm w-full mx-4 shadow-2xl text-center relative animate-fade-in-up">
+        <div class="text-indigo-400 text-3xl mb-2">🎮</div>
+        <h2 class="text-lg font-bold text-white mb-1">HD Arcade Host Mode</h2>
+        <p class="text-[11px] text-[var(--color-text-secondary)] mb-5">
+          Scan the QR or open this link on your TV:<br>
+          <span class="text-indigo-300 font-mono text-xs select-all">${tvUrl}</span>
         </p>
 
-        <!-- QR Code Pairing option -->
-        <div class="flex justify-center mb-6">
-          <div class="p-3 bg-[#12121a] border border-[var(--color-border)] rounded-2xl">
-            <img src="${qrUrl}" alt="Scan QR Code to Pair" class="w-40 h-40 object-contain rounded-xl" onerror="this.parentElement.style.display='none'" />
+        <!-- QR Code -->
+        <div class="flex justify-center mb-5">
+          <div class="p-2.5 bg-[#12121a] border border-[var(--color-border)] rounded-2xl">
+            <img src="${qrUrl}" alt="Scan QR Code" class="w-36 h-36 object-contain rounded-xl" />
           </div>
         </div>
 
-        <div class="text-[var(--color-text-secondary)] text-xs mb-2">Or enter this Pairing Code:</div>
-        <div class="flex justify-center gap-2 mb-6">
-          ${code.split('').map(digit => `<span class="w-12 h-16 rounded-xl bg-black/60 border border-[var(--color-border)] flex items-center justify-center text-white text-3xl font-extrabold">${digit}</span>`).join('')}
+        <div class="text-[var(--color-text-secondary)] text-[10px] uppercase tracking-wider mb-2">Pairing Code:</div>
+        <div class="flex justify-center gap-1.5 mb-5">
+          ${code.split('').map(digit => `<span class="w-10 h-14 rounded-xl bg-black/60 border border-[var(--color-border)] flex items-center justify-center text-white text-2xl font-extrabold">${digit}</span>`).join('')}
         </div>
 
-        <div class="text-xs text-emerald-400 font-semibold mb-6 flex items-center justify-center gap-2">
+        <!-- Connection indicators -->
+        <div id="host-pairing-indicator" class="text-xs font-semibold mb-6 flex items-center justify-center gap-2 text-indigo-400">
           <span class="relative flex h-2 w-2">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
           </span>
-          <span id="host-status-text">Waiting for Google TV...</span>
+          <span id="host-status-text">CONNECTING...</span>
         </div>
 
-        <button id="btn-stop-host" class="focus-target w-full py-3 rounded-xl bg-red-500/15 border border-red-500/30 text-red-400 hover:bg-red-500/25 transition-all text-xs font-semibold cursor-pointer">
-          Disconnect Host Mode
+        <button id="btn-stop-host" class="focus-target w-full py-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-all text-xs font-bold cursor-pointer">
+          Disconnect Host
         </button>
       </div>
     `;
@@ -106,9 +101,30 @@ export const PairingSystem = {
     document.getElementById('btn-stop-host').onclick = () => this.stopHost();
   },
 
-  updateStatus(status) {
+  updateStatus(status, latency) {
     const statusText = document.getElementById('host-status-text');
-    if (statusText) statusText.textContent = status;
+    const indicator = document.getElementById('host-pairing-indicator');
+    if (!statusText || !indicator) return;
+
+    statusText.textContent = status;
+
+    if (status === 'WAITING') {
+      statusText.textContent = 'Waiting for Google TV...';
+      indicator.className = 'text-xs font-semibold mb-6 flex items-center justify-center gap-2 text-yellow-400';
+    } else if (status === 'CONNECTED') {
+      const latText = latency > 0 ? ` (${latency}ms)` : '';
+      statusText.textContent = `Connected${latText}`;
+      indicator.className = 'text-xs font-semibold mb-6 flex items-center justify-center gap-2 text-emerald-400';
+    } else if (status === 'CONNECTING') {
+      statusText.textContent = 'Connecting to broker...';
+      indicator.className = 'text-xs font-semibold mb-6 flex items-center justify-center gap-2 text-indigo-400';
+    } else if (status === 'DISCONNECTED') {
+      statusText.textContent = 'Disconnected';
+      indicator.className = 'text-xs font-semibold mb-6 flex items-center justify-center gap-2 text-red-400';
+    } else if (status === 'RECONNECTING') {
+      statusText.textContent = 'Reconnecting...';
+      indicator.className = 'text-xs font-semibold mb-6 flex items-center justify-center gap-2 text-yellow-500 animate-pulse';
+    }
   },
 
   hideHostModal() {

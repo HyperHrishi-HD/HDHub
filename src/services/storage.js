@@ -76,12 +76,19 @@ export const storage = {
 
   // Settings
   getSettings() {
-    return JSON.parse(localStorage.getItem(KEYS.SETTINGS)) || {
-      mode: 'normal', // normal, console, tv
-      version: '4.0.0'
+    const defaults = {
+      mode: 'normal',
+      version: '4.0.0',
+      skipBootAnimation: false,
+      lastSession: Date.now(),
+      lastDevice: navigator.userAgent
     };
+    const saved = JSON.parse(localStorage.getItem(KEYS.SETTINGS)) || {};
+    return { ...defaults, ...saved };
   },
   saveSettings(settings) {
+    settings.lastSession = Date.now();
+    settings.lastDevice = navigator.userAgent;
     localStorage.setItem(KEYS.SETTINGS, JSON.stringify(settings));
   }
 };
