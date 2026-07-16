@@ -14,7 +14,10 @@
       "iframeAllowed": true,
       "keyboardRequired": true,
       "mobileCompatible": true,
-      "difficulty": "Easy"
+      "difficulty": "Easy",
+      "working": true,
+      "embedType": "iframe",
+      "tested": true
     },
     {
       "id": "8-ball-billiards",
@@ -30,7 +33,10 @@
       "iframeAllowed": true,
       "keyboardRequired": false,
       "mobileCompatible": true,
-      "difficulty": "Medium"
+      "difficulty": "Medium",
+      "working": true,
+      "embedType": "iframe",
+      "tested": true
     },
     {
       "id": "geometry-dash",
@@ -46,7 +52,10 @@
       "iframeAllowed": true,
       "keyboardRequired": false,
       "mobileCompatible": true,
-      "difficulty": "Hard"
+      "difficulty": "Hard",
+      "working": true,
+      "embedType": "iframe",
+      "tested": true
     },
     {
       "id": "eaglercraft",
@@ -62,7 +71,10 @@
       "iframeAllowed": true,
       "keyboardRequired": true,
       "mobileCompatible": false,
-      "difficulty": "Medium"
+      "difficulty": "Medium",
+      "working": true,
+      "embedType": "iframe",
+      "tested": true
     },
     {
       "id": "gta-vice-city",
@@ -78,7 +90,10 @@
       "iframeAllowed": true,
       "keyboardRequired": true,
       "mobileCompatible": false,
-      "difficulty": "Hard"
+      "difficulty": "Hard",
+      "working": true,
+      "embedType": "iframe",
+      "tested": true
     },
     {
       "id": "drift-hunters",
@@ -94,41 +109,48 @@
       "iframeAllowed": true,
       "keyboardRequired": true,
       "mobileCompatible": false,
-      "difficulty": "Medium"
+      "difficulty": "Medium",
+      "working": true,
+      "embedType": "iframe",
+      "tested": true
     },
     {
       "id": "youtube",
       "title": "YouTube",
       "category": "app",
       "thumbnail": "/assets/thumbnails/youtube.webp",
-      "url": "https://www.youtube.com",
-      "external": true,
-      "iframeBlocked": true,
+      "url": "https://yewtu.be/",
+      "external": false,
       "description": "Watch videos, stream live channels, subscribe to creators, and discover the world's video library in a secure environment.",
       "controls": "Mouse / Touch",
       "aspect": "16:9",
       "controllerSupport": false,
-      "iframeAllowed": false,
+      "iframeAllowed": true,
       "keyboardRequired": false,
       "mobileCompatible": true,
-      "difficulty": "Easy"
+      "difficulty": "Easy",
+      "working": true,
+      "embedType": "iframe",
+      "tested": true
     },
     {
       "id": "instagram",
       "title": "Instagram",
       "category": "app",
       "thumbnail": "/assets/thumbnails/instagram.webp",
-      "url": "https://www.instagram.com",
-      "external": true,
-      "iframeBlocked": true,
+      "url": "https://imginn.com/",
+      "external": false,
       "description": "Browse stories, reels, photos, and connect with your friends on the world's most popular visual social network.",
       "controls": "Mouse / Touch",
       "aspect": "16:9",
       "controllerSupport": false,
-      "iframeAllowed": false,
+      "iframeAllowed": true,
       "keyboardRequired": false,
       "mobileCompatible": true,
-      "difficulty": "Easy"
+      "difficulty": "Easy",
+      "working": true,
+      "embedType": "iframe",
+      "tested": true
     },
     {
       "id": "hdsfd-dashboard",
@@ -136,7 +158,7 @@
       "category": "app",
       "thumbnail": "/assets/thumbnails/hdsfd-dashboard.webp",
       "url": "https://hdsfd.pythonanywhere.com",
-      "external": true,
+      "external": false,
       "description": "Personal productivity engine. Manage your Pomodoro timer, tasks, schedule, and notes in a sleek distraction-free setup.",
       "controls": "Keyboard / Mouse",
       "aspect": "16:9",
@@ -144,24 +166,29 @@
       "iframeAllowed": true,
       "keyboardRequired": true,
       "mobileCompatible": true,
-      "difficulty": "Easy"
+      "difficulty": "Easy",
+      "working": true,
+      "embedType": "iframe",
+      "tested": true
     },
     {
       "id": "hyperhrishihd",
       "title": "HyperHrishiHD",
       "category": "app",
       "thumbnail": "/assets/thumbnails/hyperhrishihd.webp",
-      "url": "https://www.youtube.com/@hyperhrishihd",
-      "external": true,
-      "iframeBlocked": true,
+      "url": "https://yewtu.be/search?q=HyperHrishiHD",
+      "external": false,
       "description": "Official YouTube channel. Watch gameplay videos, development walkthroughs, tutorials, and tech showcases.",
       "controls": "Mouse / Touch",
       "aspect": "16:9",
       "controllerSupport": false,
-      "iframeAllowed": false,
+      "iframeAllowed": true,
       "keyboardRequired": false,
       "mobileCompatible": true,
-      "difficulty": "Easy"
+      "difficulty": "Easy",
+      "working": true,
+      "embedType": "iframe",
+      "tested": true
     }
   ]
 }
