@@ -4,6 +4,10 @@
     { "handle": "filesystem" },
     { "src": "^/tv$", "dest": "/index.html" },
     { "src": "^/settings$", "dest": "/index.html" },
+    { "src": "^/games.json", "dest": "/public/games.json" },
+    { "src": "^/manifest.json", "dest": "/public/manifest.json" },
+    { "src": "^/sw.js", "dest": "/public/sw.js" },
+    { "src": "^/favicon.svg", "dest": "/public/favicon.svg" },
     { "src": "^/apps/(.*)", "dest": "/public/apps/$1" },
     { "src": "^/assets/(.*)", "dest": "/public/assets/$1" },
     { "src": "^/(.*)", "dest": "/index.html" }
