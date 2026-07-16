@@ -1,11 +1,11 @@
 {
   "cleanUrls": true,
-  "rewrites": [
-    { "source": "/tv", "destination": "/index.html" },
-    { "source": "/settings", "destination": "/index.html" }
-  ],
   "routes": [
     { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/index.html" }
+    { "src": "^/tv$", "dest": "/index.html" },
+    { "src": "^/settings$", "dest": "/index.html" },
+    { "src": "^/apps/(.*)", "dest": "/public/apps/$1" },
+    { "src": "^/assets/(.*)", "dest": "/public/assets/$1" },
+    { "src": "^/(.*)", "dest": "/index.html" }
   ]
 }
