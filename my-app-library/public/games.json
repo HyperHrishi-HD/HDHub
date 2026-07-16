@@ -1,0 +1,117 @@
+{
+  "games": [
+    {
+      "id": "subway-surfers",
+      "title": "Subway Surfers",
+      "category": "game",
+      "thumbnail": "/assets/thumbnails/subway-surfers.webp",
+      "url": "/apps/subway-surfers/index.html",
+      "external": false,
+      "description": "Dash and dodge trains in the world-famous endless runner. Collect coins, unlock hoverboards, and outrun the inspector!",
+      "controls": "Keyboard / Touch",
+      "aspect": "16:9"
+    },
+    {
+      "id": "8-ball-billiards",
+      "title": "8-Ball Billiards",
+      "category": "game",
+      "thumbnail": "/assets/thumbnails/8-ball-billiards.webp",
+      "url": "/apps/8-ball-billiards/index.html",
+      "external": false,
+      "description": "Championship class 8-Ball Pool. Play against an intelligent computer AI or local two-player mode with realistic physics.",
+      "controls": "Mouse / Touch",
+      "aspect": "16:9"
+    },
+    {
+      "id": "geometry-dash",
+      "title": "Geometry Dash",
+      "category": "game",
+      "thumbnail": "/assets/thumbnails/geometry-dash.webp",
+      "url": "/apps/geometry-dash/index.html",
+      "external": false,
+      "description": "Jump, fly, and flip your way through dangerous passages and spiky obstacles in this rhythm-based action platformer.",
+      "controls": "Keyboard / Mouse / Controller",
+      "aspect": "16:9"
+    },
+    {
+      "id": "eaglercraft",
+      "title": "Eaglercraft",
+      "category": "game",
+      "thumbnail": "/assets/thumbnails/eaglercraft.webp",
+      "url": "/apps/eaglercraft/index.html",
+      "external": false,
+      "description": "Minecraft 1.8.8 web client. Explore endless worlds, build magnificent structures, and survive against nocturnal monsters.",
+      "controls": "Keyboard / Mouse",
+      "aspect": "16:9"
+    },
+    {
+      "id": "gta-vice-city",
+      "title": "GTA Vice City",
+      "category": "game",
+      "thumbnail": "/assets/thumbnails/gta-vice-city.webp",
+      "url": "/apps/gta-vice-city/index.html",
+      "external": false,
+      "description": "Step into the neon-lit 1980s streets of Vice City in this WebAssembly reverse-engineered open-world classic.",
+      "controls": "Keyboard / Mouse / Controller",
+      "aspect": "16:9"
+    },
+    {
+      "id": "drift-hunters",
+      "title": "Drift Hunters",
+      "category": "game",
+      "thumbnail": "/assets/thumbnails/drift-hunters.webp",
+      "url": "/apps/drift-hunters/index.html",
+      "external": false,
+      "description": "Superb 3D car drifting simulator. Tune your engine, choose from 25+ drift cars, and burn rubber across multiple racing tracks.",
+      "controls": "Keyboard / Controller",
+      "aspect": "16:9"
+    },
+    {
+      "id": "youtube",
+      "title": "YouTube",
+      "category": "app",
+      "thumbnail": "/assets/thumbnails/youtube.webp",
+      "url": "https://www.youtube.com",
+      "external": true,
+      "iframeBlocked": true,
+      "description": "Watch videos, stream live channels, subscribe to creators, and discover the world's video library in a secure environment.",
+      "controls": "Mouse / Touch",
+      "aspect": "16:9"
+    },
+    {
+      "id": "instagram",
+      "title": "Instagram",
+      "category": "app",
+      "thumbnail": "/assets/thumbnails/instagram.webp",
+      "url": "https://www.instagram.com",
+      "external": true,
+      "iframeBlocked": true,
+      "description": "Browse stories, reels, photos, and connect with your friends on the world's most popular visual social network.",
+      "controls": "Mouse / Touch",
+      "aspect": "16:9"
+    },
+    {
+      "id": "hdsfd-dashboard",
+      "title": "HDSFD Dashboard",
+      "category": "app",
+      "thumbnail": "/assets/thumbnails/hdsfd-dashboard.webp",
+      "url": "https://hdsfd.pythonanywhere.com",
+      "external": true,
+      "description": "Personal productivity engine. Manage your Pomodoro timer, tasks, schedule, and notes in a sleek distraction-free setup.",
+      "controls": "Keyboard / Mouse",
+      "aspect": "16:9"
+    },
+    {
+      "id": "hyperhrishihd",
+      "title": "HyperHrishiHD",
+      "category": "app",
+      "thumbnail": "/assets/thumbnails/hyperhrishihd.webp",
+      "url": "https://www.youtube.com/@hyperhrishihd",
+      "external": true,
+      "iframeBlocked": true,
+      "description": "Official YouTube channel. Watch gameplay videos, development walkthroughs, tutorials, and tech showcases.",
+      "controls": "Mouse / Touch",
+      "aspect": "16:9"
+    }
+  ]
+}

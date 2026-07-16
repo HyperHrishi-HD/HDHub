@@ -1,0 +1,165 @@
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════
+   HD Hub — Design System
+   ═══════════════════════════════════════════════ */
+
+/* Custom Theme */
+@theme {
+  --color-surface: #0a0a0f;
+  --color-surface-card: #12121a;
+  --color-surface-hover: #1a1a26;
+  --color-border: #1e1e2e;
+  --color-accent: #6c5ce7;
+  --color-accent-glow: #a78bfa;
+  --color-text-primary: #f0f0f5;
+  --color-text-secondary: #8888a0;
+  --color-game: #f97316;
+  --color-app: #06b6d4;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Base Styles */
+body {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
+}
+
+/* Card Animations */
+.card-enter {
+  animation: cardFadeIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Glow Effect */
+.glow-border {
+  position: relative;
+}
+.glow-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, var(--color-accent), transparent, var(--color-accent-glow));
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  z-index: -1;
+}
+.glow-border:hover::before {
+  opacity: 1;
+}
+
+/* Branded card hover shadow — --card-shadow is set per-card by JS */
+.glow-border:hover {
+  box-shadow: 0 8px 30px var(--card-shadow, rgba(108,92,231,0.15));
+}
+
+/* Thumbnail Shimmer (Loading Placeholder) */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-card) 25%,
+    var(--color-surface-hover) 50%,
+    var(--color-surface-card) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ═══════════════════════════════════════════════
+   App Viewer — Fullscreen Runtime
+   ═══════════════════════════════════════════════ */
+
+/* Kill iframe native scrollbars & borders */
+#viewer-iframe {
+  border: 0;
+  outline: 0;
+  scrollbar-width: none;
+}
+#viewer-iframe::-webkit-scrollbar {
+  display: none;
+}
+
+/* Viewer header glassmorphism */
+#viewer-header {
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* Viewer enter/exit */
+#app-viewer {
+  will-change: opacity;
+  transition: opacity 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Console spatial navigation focused state */
+.card-focused {
+  transform: translateY(-4px) scale(1.04);
+  border-color: var(--color-accent) !important;
+  box-shadow: 0 0 25px var(--card-shadow, rgba(108,92,231,0.4)) !important;
+  z-index: 10;
+}
+.card-focused::before {
+  opacity: 1 !important;
+}
+
+.focus-element-active {
+  border-color: var(--color-accent) !important;
+  box-shadow: 0 0 15px rgba(108, 92, 231, 0.5) !important;
+  background-color: var(--color-surface-hover) !important;
+  transform: scale(1.05);
+  outline: none;
+}
+
+/* Toast/Modal Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in-up {
+  animation: fadeInUp 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.numpad-key:focus {
+  outline: none;
+}

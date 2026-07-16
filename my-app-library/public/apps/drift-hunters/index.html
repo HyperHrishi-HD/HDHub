@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drift Hunters — HD Hub</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;700&display=swap');
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%; height: 100%; overflow: hidden;
+      background: linear-gradient(135deg, #1f1c2c 0%, #08070b 100%);
+      font-family: 'Inter', system-ui, sans-serif;
+      color: #f0f0f5;
+    }
+
+    /* ── Boot Screen ─────────────────────────── */
+    .boot-screen {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 10; transition: opacity 0.5s ease;
+    }
+    .boot-screen.fade-out { opacity: 0; pointer-events: none; }
+
+    .boot-icon {
+      font-size: 3.5rem;
+      margin-bottom: 1.5rem;
+      animation: float 2s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .boot-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.35rem;
+    }
+    .boot-subtitle {
+      font-size: 0.8rem;
+      color: #8888a0;
+      margin-bottom: 2rem;
+    }
+
+    /* Terminal log area */
+    .terminal {
+      width: 380px; max-width: 90vw;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 0.75rem;
+      padding: 1rem 1.25rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      line-height: 1.7;
+      color: #e040fb;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+    .terminal .line { opacity: 0; animation: typeLine 0.3s ease forwards; }
+    @keyframes typeLine {
+      from { opacity: 0; transform: translateX(-8px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .launch-btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.75rem 2rem; border-radius: 0.75rem;
+      background: #e040fb; color: #fff;
+      font-size: 0.875rem; font-weight: 700;
+      text-decoration: none; border: none; cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 20px #e040fb44;
+    }
+    .launch-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 28px #e040fb66;
+    }
+
+    .status-text {
+      font-size: 0.7rem; color: #8888a0;
+      margin-top: 1rem;
+    }
+
+    /* ── Runtime iframe (hidden initially) ───── */
+    .runtime-frame {
+      position: fixed; inset: 0;
+      width: 100%; height: 100%;
+      border: 0; outline: 0;
+      z-index: 5; display: none;
+    }
+    .runtime-frame.active { display: block; }
+  </style>
+</head>
+<body>
+
+  <!-- Boot Screen -->
+  <div class="boot-screen" id="boot">
+    <div class="boot-icon">🚗</div>
+    <div class="boot-title">Drift Hunters</div>
+    <div class="boot-subtitle">WebGL 3D Car Physics & Drifting Simulator</div>
+
+    <div class="terminal" id="terminal"></div>
+
+    <button class="launch-btn" id="launch-btn" style="display:none;" onclick="launchRuntime()">
+      ▶ Launch Drift Hunters
+    </button>
+
+    <div class="status-text" id="status">Initializing runtime…</div>
+  </div>
+
+  <!-- Runtime iframe -->
+  <iframe
+    class="runtime-frame"
+    id="runtime"
+    sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"
+    allow="fullscreen; autoplay; clipboard-write"
+    loading="eager"
+  ></iframe>
+
+  <script>
+    const terminal = document.getElementById('terminal');
+    const boot = document.getElementById('boot');
+    const runtime = document.getElementById('runtime');
+    const launchBtn = document.getElementById('launch-btn');
+    const statusEl = document.getElementById('status');
+    const TARGET = 'https://webglmath.github.io/drift-hunters/';
+    const FALLBACK = 'https://webglmath.github.io/drift-hunters/';
+
+    const bootLines = [
+      '> HD Hub Runtime v3.0.1',
+      '> Checking system compatibility… ✔',
+      '> Allocating WebAssembly heap… ✔',
+      '> Resolving mirror endpoint…',
+      '> Target: https://webglmath.github.io/drift-hunters/',
+      '> Establishing secure tunnel… ✔',
+      '> Pre-caching shader pipeline… ✔',
+      '> Runtime ready. Launching…',
+    ];
+
+    let lineIndex = 0;
+
+    function addLine() {
+      if (lineIndex >= bootLines.length) {
+        statusEl.textContent = 'Runtime loaded — launching…';
+        setTimeout(launchRuntime, 600);
+        return;
+      }
+      const div = document.createElement('div');
+      div.className = 'line';
+      div.style.animationDelay = '0s';
+      div.textContent = bootLines[lineIndex];
+      terminal.appendChild(div);
+      terminal.scrollTop = terminal.scrollHeight;
+      lineIndex++;
+      setTimeout(addLine, 350 + Math.random() * 250);
+    }
+
+    function launchRuntime() {
+      /* Try to load in iframe first */
+      runtime.src = TARGET;
+      runtime.classList.add('active');
+
+      let loaded = false;
+      runtime.addEventListener('load', () => {
+        loaded = true;
+        boot.classList.add('fade-out');
+      });
+
+      /* Fallback: if iframe blocks (X-Frame-Options), redirect */
+      setTimeout(() => {
+        if (!loaded) {
+          statusEl.textContent = 'Iframe blocked — redirecting to external mirror…';
+          boot.classList.add('fade-out');
+          setTimeout(() => {
+            window.location.href = FALLBACK;
+          }, 800);
+        }
+      }, 5000);
+    }
+
+    /* Show launch button as manual override */
+    setTimeout(() => {
+      launchBtn.style.display = 'inline-flex';
+    }, 2000);
+
+    /* Start boot sequence */
+    setTimeout(addLine, 400);
+  </script>
+</body>
+</html>

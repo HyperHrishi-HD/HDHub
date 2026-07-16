@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link id="dynamic-favicon" rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="description" content="HD Arcade — A modern dashboard and remote play gaming ecosystem." />
+    <title>HD Arcade</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    
+    <!-- PWA Settings -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="HD Arcade" />
+    
+    <!-- PeerJS CDN for WebRTC P2P Room Connection -->
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  </head>
+  <body>
+    <!-- ═══════════════════════════════════════════
+         Main Dashboard Container
+         ═══════════════════════════════════════════ -->
+    <div id="app"></div>
+
+    <!-- ═══════════════════════════════════════════
+         Full-Screen App / Game Viewer (Hidden)
+         ═══════════════════════════════════════════ -->
+    <div
+      id="app-viewer"
+      class="fixed inset-0 z-[9999] flex flex-col bg-[var(--color-surface)] opacity-0 pointer-events-none transition-all duration-300 ease-out"
+      aria-hidden="true"
+      role="dialog"
+      aria-label="Application Viewer"
+    >
+      <!-- ── Top Control Header Bar ─────────────── -->
+      <header
+        id="viewer-header"
+        class="flex items-center justify-between px-4 py-2 bg-[var(--color-surface-card)]/90 backdrop-blur-xl border-b border-[var(--color-border)] shrink-0"
+      >
+        <!-- Left: Active Title + Pulse Indicator -->
+        <div class="flex items-center gap-3 min-w-0">
+          <span id="viewer-pulse" class="relative flex h-2.5 w-2.5 shrink-0">
+            <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+          </span>
+          <h2
+            id="viewer-title"
+            class="text-sm font-semibold text-[var(--color-text-primary)] truncate"
+          >
+            Loading…
+          </h2>
+        </div>
+
+        <!-- Right: Control Buttons -->
+        <div class="flex items-center gap-2 shrink-0">
+          <!-- Fullscreen Toggle -->
+          <button
+            id="btn-fullscreen"
+            title="Toggle Fullscreen"
+            class="flex items-center justify-center w-8 h-8 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:border-[var(--color-accent)]/60 transition-all duration-200 cursor-pointer"
+          >
+            <!-- Expand icon (default) -->
+            <svg id="icon-expand" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3"/>
+              <path d="M21 8V5a2 2 0 0 0-2-2h-3"/>
+              <path d="M3 16v3a2 2 0 0 0 2 2h3"/>
+              <path d="M16 21h3a2 2 0 0 0 2-2v-3"/>
+            </svg>
+            <!-- Compress icon (when fullscreen) -->
+            <svg id="icon-compress" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden">
+              <path d="M4 14h6v6"/>
+              <path d="M20 10h-6V4"/>
+              <path d="M14 10l7-7"/>
+              <path d="M3 21l7-7"/>
+            </svg>
+          </button>
+
+          <!-- Stream to TV -->
+          <button
+            id="btn-stream"
+            title="Stream to TV (Host Mode)"
+            class="flex items-center justify-center w-8 h-8 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:border-[var(--color-accent)]/60 transition-all duration-200 cursor-pointer"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"/>
+              <polygon points="12 17 12 21 8 21 8 22 16 22 16 21 12 21"/>
+              <path d="M2 17a5 5 0 0 1 5 5"/>
+              <path d="M2 13a9 9 0 0 1 9 9"/>
+            </svg>
+          </button>
+
+          <!-- Open in New Tab (Cloaked) -->
+          <button
+            id="btn-newtab"
+            title="Open in Cloaked Tab"
+            class="flex items-center justify-center w-8 h-8 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:border-[var(--color-accent)]/60 transition-all duration-200 cursor-pointer"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+              <polyline points="15 3 21 3 21 9"/>
+              <line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+          </button>
+
+          <!-- Close / Return to Hub -->
+          <button
+            id="btn-close-viewer"
+            title="Return to Hub"
+            class="flex items-center gap-1.5 px-3 h-8 rounded-lg bg-red-500/15 border border-red-500/30 text-red-400 hover:bg-red-500/25 hover:text-red-300 transition-all duration-200 text-xs font-medium cursor-pointer"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+            Close
+          </button>
+        </div>
+      </header>
+
+      <!-- ── Iframe Runtime Container ───────────── -->
+      <div id="viewer-iframe-wrap" class="flex-1 relative overflow-hidden">
+        <!-- Loading Overlay -->
+        <div
+          id="viewer-loader"
+          class="absolute inset-0 z-10 flex items-center justify-center bg-[var(--color-surface)] transition-opacity duration-300"
+        >
+          <div class="flex flex-col items-center gap-3">
+            <div class="w-8 h-8 border-2 border-[var(--color-accent)]/30 border-t-[var(--color-accent)] rounded-full animate-spin"></div>
+            <span class="text-xs text-[var(--color-text-secondary)]">Loading runtime…</span>
+          </div>
+        </div>
+
+        <!-- Sandboxed Iframe -->
+        <iframe
+          id="viewer-iframe"
+          sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"
+          allow="fullscreen; autoplay; clipboard-write"
+          loading="eager"
+          class="absolute inset-0 w-full h-full border-0"
+          style="display: block;"
+        ></iframe>
+      </div>
+    </div>
+
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>

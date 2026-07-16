@@ -1,0 +1,23 @@
+#loading {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(192, 192, 192, 0.5);
+}
+
+#bgvideo {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  width: 100%; 
+  min-height: 100%;
+}
+<div id="loading">
+  <video id="bgvideo">
+    <source src="background-video.mp4" type="video/mp4">
+  </video>
+</div>
